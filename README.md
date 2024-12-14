@@ -110,8 +110,8 @@ Ensuring seamless CI/CD integration with GitHub Actions for a multi-service setu
 - **Traefik Dashboard**: https://monitor-atlys.subhanshumg.com
 
 ### Credentials
-| Username |  Password |
-|----------|-----------|
-|  root    | atlys123  |
-|  admin   | admin11!! |
+|  Type    |  Username |  Password |
+|----------|-----------|-----------|
+| mysql_db |   root    | atlys123  |
+| traefik  |   admin   | admin11!! |
 
