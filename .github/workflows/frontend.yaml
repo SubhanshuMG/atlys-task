@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: FE cicd
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
       - name: Scan Git Secrets
         run: |
           echo "Scanning Git Secrets"
-          source ./ops/ci/git-secrets.sh
+          source ./frontend/ops/ci/git-secrets.sh
 
   build_and_push_docker:
     name: 3. Build and Push Docker Image
@@ -45,13 +45,15 @@ jobs:
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         run: |
           echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+      - name: 5. Set environment variables
+        run: echo "APP_TAG_PREFIX=${{ secrets.APP_TAG_PREFIX }}" >> $GITHUB_ENV    
       - name: Build and Push Docker Image
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
           APP_TAG_PREFIX: ${{ secrets.APP_TAG_PREFIX }}
         run: |
-          bash ./ops/ci/push-docker-image-dockerhub.sh ./server
+          bash ./frontend/ops/ci/push-docker-image-dockerhub.sh ./server
 
   create_tag:
     name: 4. Create Tag for Commit
@@ -62,7 +64,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Create Git Tag
         run: |
-          bash ./ops/ci/create-tag.sh
+          bash ./frontend/ops/ci/create-tag.sh
 
   deploy_to_server:
     name: 5. Deploy to Server
@@ -74,7 +76,7 @@ jobs:
       - name: Deploy to Server via SSH
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd /home/subhanshugupta0/atlys-task
+            cd /home/subhanshugupta0/atlys-task/frontend
             docker-compose pull
             docker-compose up -d
           EOF
