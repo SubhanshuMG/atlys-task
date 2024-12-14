@@ -1,63 +1,72 @@
+#!/bin/bash
+
+# Validate required environment variables
 if [ -z "${DOCKER_HUB_USER}" ]; then
-    printf "ERROR: DCOKER HUB USER ID is not defined, Please set environment variable DOCKER_HUB_USER.";
-    exit 1;
-fi
-if [ -z "${DOCKER_HUB_USER}" ]; then
-    printf "ERROR: DCOKER HUB USER ID is not defined, Please set environment variable DOCKER_HUB_USER.";
-    exit 1;
+    echo "ERROR: DOCKER_HUB_USER is not defined. Please set the environment variable."
+    exit 1
 fi
 
 if [ -z "${DOCKER_HUB_PASSWORD}" ]; then
-    printf "ERROR: DOCKER HUB PASSWORD is not defined, Please set environment variable DOCKER_HUB_PASSWORD.";
-    exit 1;
+    echo "ERROR: DOCKER_HUB_PASSWORD is not defined. Please set the environment variable."
+    exit 1
 fi
 
 if [ -z "${APP_TAG_PREFIX}" ]; then
-    printf "ERROR: Tag Prefix is not defined, Please set environment variable APP_TAG_PREFIX Application Tag Prefix."
+    echo "ERROR: APP_TAG_PREFIX is not defined. Please set the environment variable."
     exit 1
 fi
 
 if [ -z "${GITHUB_REPOSITORY}" ]; then
-    printf "ERROR: GITHUB REPOSITORY is not defined, Please set environment variable GITHUB_REPOSITORY.";
-    exit 1;
+    echo "ERROR: GITHUB_REPOSITORY is not defined. Please set the environment variable."
+    exit 1
 fi
 
 if [ -z "${GITHUB_RUN_NUMBER}" ]; then
-    printf "ERROR: GITHUB RUN NUMBER is not defined, Please set environment variable GITHUB_RUN_NUMBER.";
-    exit 1;
+    echo "ERROR: GITHUB_RUN_NUMBER is not defined. Please set the environment variable."
+    exit 1
 fi
 
 if [ -z "$1" ]; then
-    printf "ERROR: Artifacts path is missing please pass as Argument.";
-    exit 1;
-fi  
+    echo "ERROR: Artifacts path is missing. Please pass it as an argument."
+    exit 1
+fi
 
+# Define variables
+ARTIFACTS_PATH="$1"
+IMAGE_NAME="atlys-be"
+DOCKER_HUB_REGISTRY_NAME="${DOCKER_HUB_USER}/${IMAGE_NAME}"
 
-printf "Setting Registry Name..."
-export DOCKER_HUB_REGISTRY_NAME=${DOCKER_HUB_USER}"/"${GITHUB_REPOSITORY}
+# Navigate to the artifacts directory
+if [ -d "${ARTIFACTS_PATH}" ]; then
+    echo "Navigating to artifacts directory: ${ARTIFACTS_PATH}"
+    cd "${ARTIFACTS_PATH}" || exit 1
+else
+    echo "ERROR: Artifacts directory does not exist: ${ARTIFACTS_PATH}"
+    exit 1
+fi
 
-printf "Building from Dockerfile"
-printf "Navigate to Internal-Artifacts Directory."
-    cd $1
+# Set tag prefix based on branch
+if [[ "${GITHUB_REF}" == "refs/heads/main" || "${GITHUB_REF}" == "refs/heads/dev" ]]; then
+    APP_TAG_PREFIX="v${APP_TAG_PREFIX}"
+fi
 
-if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-        APP_TAG_PREFIX="v${APP_TAG_PREFIX}"
-    fi
+# Build Docker image
+IMAGE_TAG="${DOCKER_HUB_REGISTRY_NAME}:${APP_TAG_PREFIX}.${GITHUB_RUN_NUMBER}"
+LATEST_TAG="${DOCKER_HUB_REGISTRY_NAME}:latest"
 
-if [[ "${GITHUB_REF}" == "refs/heads/dev" ]]; then
-        APP_TAG_PREFIX="v${APP_TAG_PREFIX}"
-    fi
+echo "Building Docker image with tags: ${IMAGE_TAG} and ${LATEST_TAG}"
+if docker build -f Dockerfile -t "${IMAGE_TAG}" -t "${LATEST_TAG}" .; then
+    echo "Docker image built successfully."
 
-if docker build -f Dockerfile -t atlys-be:${APP_TAG_PREFIX}.${github.run_number} -t atlys-be:latest .; then
-    printf "Docker image build successfully.";
-        printf "Push Docker Image.";
-        if docker push atlys-be:${APP_TAG_PREFIX}.${github.run_number} && docker push atlys-be:latest; then
-            printf "Image["atlys-be:${github.run_number}"] successfully pushed with "latest" tag."
-
-        else 
-            printf "Docker image push failed";
-        fi
-
+    # Push Docker image
+    echo "Pushing Docker image to DockerHub."
+    if docker push "${IMAGE_TAG}" && docker push "${LATEST_TAG}"; then
+        echo "Docker images pushed successfully: ${IMAGE_TAG}, ${LATEST_TAG}"
     else
-        printf "Docker Image Build Failed";
+        echo "ERROR: Failed to push Docker images."
+        exit 1
     fi
+else
+    echo "ERROR: Docker image build failed."
+    exit 1
+fi
