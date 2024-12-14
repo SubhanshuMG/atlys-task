@@ -42,6 +42,7 @@ if [ -d "${ARTIFACTS_PATH}" ]; then
     cd "${ARTIFACTS_PATH}" || exit 1
 else
     echo "ERROR: Artifacts directory does not exist: ${ARTIFACTS_PATH}"
+    echo "Please check if the correct path is passed to the script."
     exit 1
 fi
 

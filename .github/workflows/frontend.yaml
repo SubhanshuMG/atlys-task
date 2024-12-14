@@ -57,7 +57,7 @@ jobs:
         run: |
           export DOCKER_HUB_USER=${{ secrets.DOCKER_HUB_USER }}
           export DOCKER_HUB_PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }}
-          bash ./frontend/ops/ci/push-docker-image-dockerhub.sh ./frontend/server
+          bash ./frontend/ops/ci/push-docker-image-dockerhub.sh ./frontend
 
   create_tag:
     name: 4. Create Tag for Commit
