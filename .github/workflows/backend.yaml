@@ -1,4 +1,4 @@
-name: BE CICD
+name: BE cicd
 
 on:
   workflow_run:

@@ -40,3 +40,8 @@ jobs:
           echo "No changes in backend."
           echo "backend_changed=false" >> $GITHUB_OUTPUT
         fi
+
+    - name: Debug Outputs
+      run: |
+        echo "Frontend Changed: ${{ steps.check.outputs.frontend_changed }}"
+        echo "Backend Changed: ${{ steps.check.outputs.backend_changed }}"
