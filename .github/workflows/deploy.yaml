@@ -6,16 +6,28 @@ on:
       - main
 
 jobs:
+  setup_env:
+    name: 1. Setting up environment
+    runs-on: ubuntu-latest
+    steps:    
+      - name: env setup
+        run: |
+          sudo apt-get update && sudo apt-get install -y git make bash
+
   scan_git_secrets:
     name: 1. Scanning Git Secrets
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Install and Scan Git Secrets
+      - name: Install git secrets
         run: |
           echo "Installing Git Secrets"
-          source ./ops/ci/clone-git-secrets.sh
+          git clone https://github.com/awslabs/git-secrets.git
+          cd git-secrets
+          sudo make install
+      - name: Scan Git Secrets
+        run: |
           echo "Scanning Git Secrets"
           source ./ops/ci/git-secrets.sh
 
