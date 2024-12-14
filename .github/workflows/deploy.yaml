@@ -1,0 +1,62 @@
+name: CI/CD
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Set up SSH agent
+    - name: Set up SSH agent
+      uses: webfactory/ssh-agent@v0.10.1
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add this in GitHub Secrets
+        known-hosts: |
+          ${{ secrets.SERVER_IP }}
+
+    # SSH into the server and perform actions
+    - name: Deploy Application
+      env:
+        DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}  # Add Docker Hub credentials if needed
+        DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      run: |
+        # SSH into the server
+        ssh -o StrictHostKeyChecking=no subhanshu@35.238.6.119 << 'EOF'
+        
+        # Navigate to the repository
+        cd /home/subhanshugupta0/atlys-task
+
+        # Pull the latest changes
+        git pull origin main
+
+        # Detect changes in the frontend or backend
+        BACKEND_CHANGED=$(git diff HEAD~1 HEAD --name-only | grep "^backend/")
+        FRONTEND_CHANGED=$(git diff HEAD~1 HEAD --name-only | grep "^frontend/")
+
+        # Build and deploy if necessary
+        if [ ! -z "$BACKEND_CHANGED" ]; then
+          echo "Changes detected in backend. Building backend..."
+          docker build -t backend-image:latest ./backend
+        fi
+
+        if [ ! -z "$FRONTEND_CHANGED" ]; then
+          echo "Changes detected in frontend. Building frontend..."
+          docker build -t frontend-image:latest ./frontend
+        fi
+
+        # Log in to Docker if required
+        echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+
+        # Deploy the updated docker-compose stack
+        echo "Deploying updated services..."
+        docker-compose down
+        docker-compose up -d --build
+
+        EOF

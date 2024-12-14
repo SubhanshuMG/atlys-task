@@ -1,35 +1,82 @@
 version: '3.8'
 services:
   traefik:
-    image: traefik:v2.10
+    image: "traefik:v2.10"
+    container_name: "traefik"
     command:
-      - "--providers.docker"
+      - "--log.level=DEBUG"
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge=true"
+      - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=subhanshugupta0@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-secure.entrypoints=websecure" 
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=myhttpchallenge"
+      - "traefik.http.routers.traefik-secure.rule=Host(`monitor-atlys.subhanshumg.com`)"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$T.1U0KPL.hpOF9uQ1P4p9umrM0xOo5OVnaB3JMlkmiPKTl0OB7BAS"
+      - "traefik.http.routers.traefik-secure.service=api@internal"
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:[a-z-.]+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.security-headers.headers.frameDeny=true"
+      - "traefik.http.middlewares.security-headers.headers.sslRedirect=true"
+      - "traefik.http.middlewares.security-headers.headers.STSIncludeSubdomains=true"
+      - "traefik.http.middlewares.security-headers.headers.STSPreload=true"
+      - "traefik.http.middlewares.security-headers.headers.STSSeconds=31536000"
+      - "traefik.http.middlewares.security-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.security-headers.headers.browserXSSFilter=true"
+      - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
+      # - "traefik.http.middlewares.rate-limit.ratelimit.period=60m"
+      # - "traefik.http.middlewares.rate-limit.ratelimit.average=10"
+      # - "traefik.http.middlewares.rate-limit.ratelimit.burst=5"
+      # - "traefik.http.middlewares.rate-limit.ratelimit.sourcecriterion.ipstrategy.depth=4"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./letsencrypt:/letsencrypt"
+      - "/letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
-  frontend:
+  atlys-fe:
     build: ./frontend
+    container_name: "atlys-fe"
     ports:
       - "80:3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.atlys-fe.rule=Host(`atlys-fe.subhanshumg.com`)"
+      - "traefik.http.routers.atlys-fe.entrypoints=websecure"
+      - "traefik.http.routers.atlys-fe.tls=true"
+      - "traefik.http.routers.atlys-fe.tls.certresolver=myhttpchallenge"
+      - "traefik.http.routers.atlys-fe.middlewares=security-headers@docker"  
 
-  backend:
+  atlys-be:
     build: ./backend
+    container_name: "atlys-be"
     ports:
       - "5000:5000"
     environment:
       - DB_HOST=db
-      - DB_USER=root
+      - DB_USER=subhanshu
       - DB_PASSWORD=atlys123
       - DB_NAME=atlys
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.atlys-be.rule=Host(`atlys-be.subhanshumg.com`)"
+      - "traefik.http.routers.atlys-be.entrypoints=websecure"
+      - "traefik.http.routers.atlys-be.tls=true"
+      - "traefik.http.routers.atlys-be.tls.certresolver=myhttpchallenge"
+      - "traefik.http.routers.atlys-be.middlewares=security-headers@docker"   
+  
   db:
     image: mysql:8.0
     environment:
