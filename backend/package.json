@@ -1,0 +1,13 @@
+{
+    "name": "atlys-be",
+    "version": "1.0.0",
+    "private": true,
+    "dependencies": {
+        "express": "^4.0.0",
+        "mysql": "^2.18.1",
+        "mysql2": "^2.0.0"
+    },
+    "scripts": {
+        "start": "node index.js"
+    }
+}
