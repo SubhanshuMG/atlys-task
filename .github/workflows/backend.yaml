@@ -1,10 +1,9 @@
 name: BE cicd
 
 on:
-  workflow_run:
-    workflows: ["Check Changes"]
-    types:
-      - completed
+    push:
+      branches:
+        - main
 
 jobs:
   checkout:
