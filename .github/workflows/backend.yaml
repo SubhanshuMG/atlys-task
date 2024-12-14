@@ -63,9 +63,11 @@ jobs:
     name: 4. Create Tag for Commit
     runs-on: ubuntu-latest
     needs: build_and_push_docker
+    env:
+      GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+      GH_TAG_USER_EMAIL: ${{ secrets.GH_TAG_USER_EMAIL }}
+      GH_TAG_USERNAME: ${{ secrets.GH_TAG_USERNAME }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
       - name: Create Git Tag
         run: |
           bash ./backend/ops/ci/create-tag.sh
