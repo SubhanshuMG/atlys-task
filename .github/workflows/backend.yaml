@@ -13,6 +13,8 @@ jobs:
     # Step 1: Checkout the repository
     - name: Checkout Code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     # Step 2: Check for changes in backend folder
     - name: Check for changes in backend
