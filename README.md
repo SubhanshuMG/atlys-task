@@ -4,13 +4,6 @@ This repository contains the source code for the Atlys web application. It inclu
 
 ---
 
-## Features
-- DevOps workflow
-- Application Status tracking
-- Basic UI
-
----
-
 ## Prerequisites
 1. **GCP Account**
 2. **Docker and Docker Compose**
@@ -27,10 +20,10 @@ cd atlys-task
 ```
 
 ### Configure Environment Variables
-Create a `.env` file for backend configuration:
+env-vars specified in docker-compose.yaml:
 ```
-DB_HOST=db
-DB_USER=subhanshu
+DB_HOST=34.170.73.196
+DB_USER=root
 DB_PASSWORD=atlys123
 DB_NAME=atlys
 ```
@@ -84,7 +77,7 @@ The application is a full-stack implementation:
 
 ### Design Decisions
 - **React.js**: Chosen for its component-based architecture and seamless SPA implementation.
-- **MySQL**: Reliable RDBMS for handling visa application data.
+- **MySQL**: Reliable RDBMS for handling application data.
 - **Traefik**: Used for managing SSL and routing due to its lightweight nature and compatibility with Docker.
 - **GCP**: Selected for scalability, reliability, and integration with modern DevOps tools.
 
