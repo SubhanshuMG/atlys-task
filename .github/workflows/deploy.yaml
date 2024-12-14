@@ -15,8 +15,9 @@ jobs:
           sudo apt-get update && sudo apt-get install -y git make bash
 
   scan_git_secrets:
-    name: 1. Scanning Git Secrets
+    name: 2. Scanning Git Secrets
     runs-on: ubuntu-latest
+    needs: setup_env
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -32,7 +33,7 @@ jobs:
           source ./ops/ci/git-secrets.sh
 
   build_and_push_docker:
-    name: 2. Build and Push Docker Image
+    name: 3. Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: scan_git_secrets
     steps:
@@ -50,7 +51,7 @@ jobs:
           bash ./ops/ci/push-docker-image-dockerhub.sh ./server
 
   create_tag:
-    name: 3. Create Tag for Commit
+    name: 4. Create Tag for Commit
     runs-on: ubuntu-latest
     needs: build_and_push_docker
     steps:
@@ -61,7 +62,7 @@ jobs:
           bash ./ops/ci/create-tag.sh
 
   deploy_to_server:
-    name: 4. Deploy to Server
+    name: 5. Deploy to Server
     runs-on: ubuntu-latest
     needs: create_tag
     steps:
