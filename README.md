@@ -105,8 +105,8 @@ Ensuring seamless CI/CD integration with GitHub Actions for a multi-service setu
 ## Access Details
 
 ### Application URLs
-- **Frontend**: [https://your-domain.com](https://your-domain.com)
-- **Backend API**: [https://your-domain.com/api](https://your-domain.com/api)
+- **Frontend**: https://atlys-fe.subhanshumg.com/
+- **Backend API**: https://atlys-be.subhanshumg.com/
 
 ### Credentials
 | Username | Password |
