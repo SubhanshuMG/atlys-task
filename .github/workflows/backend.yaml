@@ -6,9 +6,44 @@ on:
       - main
 
 jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Step 2: Check for changes in backend folder
+    - name: Check for changes in backend
+      id: changes
+      run: |
+        # Check for changes in frontend or backend directories
+        git fetch origin
+        BACKEND_CHANGED=$(git diff --name-only HEAD~1 HEAD | grep "^backend/")
+
+        # Print detected changes
+        if [ ! -z "$BACKEND_CHANGED" ]; then
+          echo "Backend changes detected:"
+          echo "$BACKEND_CHANGED"
+        fi
+
+        # Set outputs for next steps
+        if [ ! -z "$BACKEND_CHANGED" ]; then
+          echo "::set-output name=changed::true"
+        else
+          echo "::set-output name=changed::false"
+        fi
+
+    # Step 3: Conditional execution based on changes
+    - name: Proceed with pipeline if changes are detected
+      if: steps.changes.outputs.changed == 'true'
+      run: |
+        echo "Changes detected in backend. Proceeding with pipeline..."
+
   setup_env:
     name: 1. Setting up environment
     runs-on: ubuntu-latest
+    needs: check-changes
     steps:    
       - name: env setup
         run: |
