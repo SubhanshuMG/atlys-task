@@ -40,6 +40,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
       - name: Login to DockerHub
+        env:
+          DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         run: |
           echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
       - name: Build and Push Docker Image
