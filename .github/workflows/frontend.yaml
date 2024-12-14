@@ -9,45 +9,37 @@ jobs:
   check-changes:
     name: 1. Checking changes
     runs-on: ubuntu-latest
+    outputs:
+      frontend_changed: ${{ steps.check.outputs.changed }}
     steps:
-    # Step 1: Checkout the repository
+    # Step 1: Checkout the repository with full history
     - name: Checkout Code
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0
+        fetch-depth: 0  
 
     # Step 2: Check for changes in frontend folder
     - name: Check for changes in frontend
-      id: changes
+      id: check
       run: |
-        # Check for changes in frontend or frontend directories
-        git fetch origin
-        FRONTEND_CHANGED=$(git diff --name-only HEAD~1 HEAD | grep "^./frontend")
+        # Check for changes in the frontend folder
+        FRONTEND_CHANGED=$(git diff --name-only HEAD~1 HEAD | grep "^frontend/" || true)
 
         # Print detected changes
         if [ ! -z "$FRONTEND_CHANGED" ]; then
-          echo "Backend changes detected:"
+          echo "Frontend changes detected:"
           echo "$FRONTEND_CHANGED"
-        fi
-
-        # Set outputs for next steps
-        if [ ! -z "$FRONTEND_CHANGED" ]; then
-          echo "::set-output name=changed::true"
+          echo "changed=true" >> $GITHUB_OUTPUT
         else
-          echo "::set-output name=changed::false"
+          echo "No changes detected in frontend."
+          echo "changed=false" >> $GITHUB_OUTPUT
         fi
-
-    # Step 3: Conditional execution based on changes
-    - name: Proceed with pipeline if changes are detected
-      if: steps.changes.outputs.changed == 'true'
-      run: |
-        echo "Changes detected in frontend. Proceeding with pipeline..."
 
   setup_env:
     name: 2. Setting up environment
     runs-on: ubuntu-latest
     needs: check-changes
-    if: needs.check-changes.outputs.changed == 'true'
+    if: needs.check-changes.outputs.frontend_changed == 'true' 
     steps:    
       - name: env setup
         run: |
@@ -57,7 +49,7 @@ jobs:
     name: 3. Scanning Git Secrets
     runs-on: ubuntu-latest
     needs: setup_env
-    if: needs.check-changes.outputs.changed == 'true'
+    if: needs.check-changes.outputs.frontend_changed == 'true'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -76,7 +68,7 @@ jobs:
     name: 4. Build and Push frontend Docker Image
     runs-on: ubuntu-latest
     needs: scan_git_secrets
-    if: needs.check-changes.outputs.changed == 'true'
+    if: needs.check-changes.outputs.frontend_changed == 'true' 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -99,6 +91,7 @@ jobs:
           export DOCKER_HUB_USER=${{ secrets.DOCKER_HUB_USER }}
           export DOCKER_HUB_PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }}
           bash ./frontend/ops/ci/push-docker-image-dockerhub.sh ./frontend
+
 
   # create_tag:
   #   name: 5. Create Tag for Commit
