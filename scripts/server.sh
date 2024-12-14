@@ -22,7 +22,7 @@ sudo chown $USER:$USER "$USER_HOME/.ssh"
 sudo chmod 700 "$USER_HOME/.ssh"
 
 #subhanshu keys
-echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDkPpCPMbmzAJciaBPGpG5XQDhf9ywnI9/lI2Hm32217rK7o6hw7jbcnGgs6PDyJy2TcsA7kUvAT0PqwqMJEHeporawiltYrZMf5vYwSApmyKA/Yc/B+AEmFwiavADaVCPVwIUp4e/cqooQvL8Zb071WU2vvOAxT9HFWbHmrzSwcZ3nPhtp760w6UHHk4nrWnx868KBK7o8o8ii2sc4Dcg4FKKNDuElktfW19dzS2j5bQnsvmrTCIfP3YiAMck0KXBwxLeONIRJ1lNM7lqLI3acYBePQUSRgajm56w1Tpnrw64Up4M0i9UHfo19/JN/5Fz257t05/jALe74XnMtBZYowUxpPmzWLypu3xpUJMc5tusR6n0JRqi8VDpyNbCgNYtFyEu+NVqWowe4+r2gRsj/cXBQIGJaog5kmiEMhbMqOZOI8EYpH5tLskCEFWOzjQVNYsSkGRstWN8clQTbeGR5PWN86JyGuA+PVN+QksYGQRKogtfx7FE/xZN7EQiN0nk= subhanshumg@Subhanshus-MacBook-Pro.local" | sudo tee -a "$USER_HOME/.ssh/authorized_keys"
+echo "ssh-rsa :) subhanshumg@Subhanshus-MacBook-Pro.local" | sudo tee -a "$USER_HOME/.ssh/authorized_keys"
 echo "" | sudo tee -a "$USER_HOME/.ssh/authorized_keys"
 sudo chown $USER:$USER "$USER_HOME/.ssh/authorized_keys"
 sudo chmod 600 "$USER_HOME/.ssh/authorized_keys"

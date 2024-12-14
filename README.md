@@ -44,14 +44,10 @@ docker-compose up -d
 ```bash
 sudo apt update && sudo apt install docker.io docker-compose -y
 ```
+- OR You can use my server-hardening script located inside the scripts folder
 
-### Step 2: Deploy Application
-1. Clone the repository on the VM:
-   ```bash
-   git clone <repository-url>
-   cd atlys-clone
-   ```
-2. Run Docker Compose:
+### Step 2: Deploy Application inside the VM
+1. Run Docker Compose:
    ```bash
    docker-compose up -d
    ```
