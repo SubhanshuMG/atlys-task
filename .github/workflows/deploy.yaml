@@ -15,7 +15,7 @@ jobs:
 
     # Set up SSH agent
     - name: Set up SSH agent
-      uses: webfactory/ssh-agent@v0.10.1
+      uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add this in GitHub Secrets
         known-hosts: |
