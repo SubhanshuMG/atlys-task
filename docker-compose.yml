@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.7'
 services:
   traefik:
     image: "traefik:v2.10"
@@ -10,10 +10,10 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myhttpchallenge.acme.email=subhanshugupta0@gmail.com"
       - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge=true"
       - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.myresolver.acme.email=subhanshugupta0@gmail.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myhttpchallenge.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
@@ -38,20 +38,15 @@ services:
       - "traefik.http.middlewares.security-headers.headers.contentTypeNosniff=true"
       - "traefik.http.middlewares.security-headers.headers.browserXSSFilter=true"
       - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
-      # - "traefik.http.middlewares.rate-limit.ratelimit.period=60m"
-      # - "traefik.http.middlewares.rate-limit.ratelimit.average=10"
-      # - "traefik.http.middlewares.rate-limit.ratelimit.burst=5"
-      # - "traefik.http.middlewares.rate-limit.ratelimit.sourcecriterion.ipstrategy.depth=4"
     volumes:
       - "/letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   atlys-fe:
     image: "subhanshumg/atlys-fe:latest"
-    # build: ./frontend
     container_name: "atlys-fe"
     ports:
-      - "80:3000"
+      - "3000:3000"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.atlys-fe.rule=Host(`atlys-fe.subhanshumg.com`)"
@@ -62,7 +57,6 @@ services:
 
   atlys-be:
     image: "subhanshumg/atlys-be:latest"
-    # build: ./backend
     container_name: "atlys-be"
     ports:
       - "5000:5000"

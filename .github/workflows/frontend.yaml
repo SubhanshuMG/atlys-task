@@ -31,6 +31,10 @@ jobs:
         run: |
           echo "Scanning Git Secrets"
           source ./frontend/ops/ci/git-secrets.sh
+      - name: Checking changes
+        run: |
+           BACKEND_CHANGED=$(git diff HEAD~1 HEAD --name-only | grep "^backend/")
+           FRONTEND_CHANGED=$(git diff HEAD~1 HEAD --name-only | grep "^frontend/")
 
   build_and_push_docker:
     name: 3. Build and Push frontend Docker Image
