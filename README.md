@@ -105,11 +105,13 @@ Ensuring seamless CI/CD integration with GitHub Actions for a multi-service setu
 ## Access Details
 
 ### Application URLs
-- **Frontend**: https://atlys-fe.subhanshumg.com/
-- **Backend API**: https://atlys-be.subhanshumg.com/
+- **Frontend**: https://atlys-fe.subhanshumg.com
+- **Backend API**: https://atlys-be.subhanshumg.com
+- **Traefik Dashboard**: https://monitor-atlys.subhanshumg.com
 
 ### Credentials
-| Username | Password |
-|----------|----------|
-| atlys    | atlys123 |
+| Username |  Password |
+|----------|-----------|
+|  root    | atlys123  |
+|  admin   | admin11!! |
 
