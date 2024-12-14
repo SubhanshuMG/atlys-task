@@ -39,20 +39,23 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Login to DockerHub
+      - name: Set DockerHub Credentials as Environment Variables
         env:
           DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         run: |
-          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
-      - name: 5. Set environment variables
+          echo "${DOCKER_HUB_PASSWORD}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
+      - name: Set APP_TAG_PREFIX
         run: echo "APP_TAG_PREFIX=${{ secrets.APP_TAG_PREFIX }}" >> $GITHUB_ENV    
       - name: Build and Push Docker Image
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
           APP_TAG_PREFIX: ${{ secrets.APP_TAG_PREFIX }}
+          DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
         run: |
+          export DOCKER_HUB_USER=${{ secrets.DOCKER_HUB_USER }}
+          export DOCKER_HUB_PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }}
           bash ./backend/ops/ci/push-docker-image-dockerhub.sh ./server
 
   create_tag:
@@ -71,8 +74,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: create_tag
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
       - name: Deploy to Server via SSH
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'

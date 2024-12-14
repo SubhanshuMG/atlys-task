@@ -48,11 +48,11 @@ if [[ "${GITHUB_REF}" == "refs/heads/dev" ]]; then
         APP_TAG_PREFIX="v${APP_TAG_PREFIX}"
     fi
 
-if docker build -f Dockerfile -t ${DOCKER_HUB_REGISTRY_NAME}:${APP_TAG_PREFIX}.${github.run_number} -t ${DOCKER_HUB_REGISTRY_NAME}:latest .; then
+if docker build -f Dockerfile -t atlys-fe:${APP_TAG_PREFIX}.${github.run_number} -t atlys-fe:latest .; then
     printf "Docker image build successfully.";
         printf "Push Docker Image.";
-        if docker push ${DOCKER_HUB_REGISTRY_NAME}:${APP_TAG_PREFIX}.${github.run_number} && docker push ${DOCKER_HUB_REGISTRY_NAME}:latest; then
-            printf "Image["${DOCKER_HUB_REGISTRY_NAME}:${github.run_number}"] successfully pushed with "latest" tag."
+        if docker push atlys-fe:${APP_TAG_PREFIX}.${github.run_number} && docker push atlys-fe:latest; then
+            printf "Image["atlys-fe:${github.run_number}"] successfully pushed with "latest" tag."
 
         else 
             printf "Docker image push failed";
