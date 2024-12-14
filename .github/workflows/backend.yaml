@@ -8,9 +8,9 @@ on:
 
 jobs:
   checkout:
-    name: Code checkout
+    name: Code Checkout
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.outputs.backend_changed == 'true' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.outputs.backend_changed || 'false') == 'true' }}
     steps:
     - name: Debug Outputs
       run: |
