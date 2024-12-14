@@ -1,47 +1,47 @@
-name: Check Changes
+# name: Check Changes
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  check-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      frontend_changed: ${{ steps.check.outputs.frontend_changed }}
-      backend_changed: ${{ steps.check.outputs.backend_changed }}
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+# jobs:
+#   check-changes:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       frontend_changed: ${{ steps.check.outputs.frontend_changed }}
+#       backend_changed: ${{ steps.check.outputs.backend_changed }}
+#     steps:
+#     - name: Checkout Code
+#       uses: actions/checkout@v3
+#       with:
+#         fetch-depth: 0
 
-    - name: Check for changes in frontend and backend
-      id: check
-      run: |
-        # Check for changes in frontend and backend directories
-        FRONTEND_CHANGED=$(git diff --name-only HEAD~1 HEAD | grep "^frontend/" || true)
-        BACKEND_CHANGED=$(git diff --name-only HEAD~1 HEAD | grep "^backend/" || true)
+#     - name: Check for changes in frontend and backend
+#       id: check
+#       run: |
+#         # Check for changes in frontend and backend directories
+#         FRONTEND_CHANGED=$(git diff --name-only HEAD~1 HEAD | grep "^frontend/" || true)
+#         BACKEND_CHANGED=$(git diff --name-only HEAD~1 HEAD | grep "^backend/" || true)
 
-        # Determine and set outputs
-        if [ ! -z "$FRONTEND_CHANGED" ]; then
-          echo "Frontend changes detected."
-          echo "frontend_changed=true" >> $GITHUB_OUTPUT
-        else
-          echo "No changes in frontend."
-          echo "frontend_changed=false" >> $GITHUB_OUTPUT
-        fi
+#         # Determine and set outputs
+#         if [ ! -z "$FRONTEND_CHANGED" ]; then
+#           echo "Frontend changes detected."
+#           echo "frontend_changed=true" >> $GITHUB_OUTPUT
+#         else
+#           echo "No changes in frontend."
+#           echo "frontend_changed=false" >> $GITHUB_OUTPUT
+#         fi
 
-        if [ ! -z "$BACKEND_CHANGED" ]; then
-          echo "Backend changes detected."
-          echo "backend_changed=true" >> $GITHUB_OUTPUT
-        else
-          echo "No changes in backend."
-          echo "backend_changed=false" >> $GITHUB_OUTPUT
-        fi
+#         if [ ! -z "$BACKEND_CHANGED" ]; then
+#           echo "Backend changes detected."
+#           echo "backend_changed=true" >> $GITHUB_OUTPUT
+#         else
+#           echo "No changes in backend."
+#           echo "backend_changed=false" >> $GITHUB_OUTPUT
+#         fi
 
-    - name: Debug Outputs
-      run: |
-        echo "Frontend Changed: ${{ steps.check.outputs.frontend_changed }}"
-        echo "Backend Changed: ${{ steps.check.outputs.backend_changed }}"
+#     - name: Debug Outputs
+#       run: |
+#         echo "Frontend Changed: ${{ steps.check.outputs.frontend_changed }}"
+#         echo "Backend Changed: ${{ steps.check.outputs.backend_changed }}"
