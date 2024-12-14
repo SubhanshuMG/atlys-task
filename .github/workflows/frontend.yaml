@@ -1,4 +1,4 @@
-name: FE cicd
+name: FE CICD
 
 on:
   workflow_run:
@@ -10,12 +10,16 @@ jobs:
   checkout:
     name: Code checkout
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.outputs.backend_changed == 'true' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.outputs.frontend_changed == 'true' }}
     steps:
+    - name: Debug Outputs
+      run: |
+        echo "Frontend Changed: ${{ github.event.workflow_run.outputs.frontend_changed }}"
+        echo "Backend Changed: ${{ github.event.workflow_run.outputs.backend_changed }}"
     - name: Checkout Code
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0  
+        fetch-depth: 0
 
   setup_env:
     name: Setting up environment
@@ -70,30 +74,3 @@ jobs:
           export DOCKER_HUB_USER=${{ secrets.DOCKER_HUB_USER }}
           export DOCKER_HUB_PASSWORD=${{ secrets.DOCKER_HUB_PASSWORD }}
           bash ./frontend/ops/ci/push-docker-image-dockerhub.sh ./frontend
-
-
-  # create_tag:
-  #   name: Create Tag for Commit
-  #   runs-on: ubuntu-latest
-  #   needs: build_and_push_docker
-  #   env:
-  #     GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-  #     GH_TAG_USER_EMAIL: ${{ secrets.GH_TAG_USER_EMAIL }}
-  #     GH_TAG_USERNAME: ${{ secrets.GH_TAG_USERNAME }}
-  #   steps:
-  #     - name: Create Git Tag
-  #       run: |
-  #         bash ./frontend/ops/ci/create-tag.sh
-
-  # deploy_to_server:
-  #   name: Deploy to Server
-  #   runs-on: ubuntu-latest
-  #   needs: create_tag
-  #   steps:
-  #     - name: Deploy to Server via SSH
-  #       run: |
-  #         ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-  #           cd /home/subhanshugupta0/atlys-task/frontend
-  #           docker-compose pull
-  #           docker-compose up -d
-  #         EOF
