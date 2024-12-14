@@ -1,62 +1,69 @@
-name: CI/CD
-on:
-  push:
-    branches:
-      - main  # Trigger on pushes to the main branch
+# name: CI/CD
+# on:
+#   push:
+#     branches:
+#       - main  # Trigger on pushes to the main branch
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-    # Checkout the repository
-    - name: Checkout Code
-      uses: actions/checkout@v3
+#     steps:
+#     - name: Checkout main
+#       uses: actions/checkout@main
+#     - id: 'auth'
+#       name: 'Authenticate to Google Cloud'
+#       uses: google-github-actions/auth@v0.7.3
+#       with:
+#           credentials_json: ${{ secrets.GCP_SA }}
+#     - name: Setup gcloud CLI
+#       uses: google-github-actions/setup-gcloud@v1
+#       with:
+#           service_account_key: ${{ secrets.GCP_SA }}
+#           project_id: ${{ secrets.RUN_PROJECT }}
 
-    # Set up SSH agent
-    - name: Set up SSH agent
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add this in GitHub Secrets
-        known-hosts: |
-          ${{ secrets.SERVER_IP }}
+#     # Set up SSH agent
+#     - name: Set up SSH agent
+#       uses: webfactory/ssh-agent@v0.5.3
+#       with:
+#         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add this in GitHub Secrets
 
-    # SSH into the server and perform actions
-    - name: Deploy Application
-      env:
-        DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}  # Add Docker Hub credentials if needed
-        DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      run: |
-        # SSH into the server
-        ssh -o StrictHostKeyChecking=no subhanshu@35.238.6.119 << 'EOF'
+#     # SSH into the server and perform actions
+#     - name: Deploy Application
+#       env:
+#         DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}  # Add Docker Hub credentials if needed
+#         DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+#       run: |
+#         # SSH into the server
+#         gcloud compute ssh --zone "us-central1-a" "atlys-e2" --project "atlys-2"
         
-        # Navigate to the repository
-        cd /home/subhanshugupta0/atlys-task
+#         # Navigate to the repository
+#         cd /home/subhanshugupta0/atlys-task
 
-        # Pull the latest changes
-        git pull origin main
+#         # Pull the latest changes
+#         git pull origin main
 
-        # Detect changes in the frontend or backend
-        BACKEND_CHANGED=$(git diff HEAD~1 HEAD --name-only | grep "^backend/")
-        FRONTEND_CHANGED=$(git diff HEAD~1 HEAD --name-only | grep "^frontend/")
+#         # Detect changes in the frontend or backend
+#         BACKEND_CHANGED=$(git diff HEAD~1 HEAD --name-only | grep "^backend/")
+#         FRONTEND_CHANGED=$(git diff HEAD~1 HEAD --name-only | grep "^frontend/")
 
-        # Build and deploy if necessary
-        if [ ! -z "$BACKEND_CHANGED" ]; then
-          echo "Changes detected in backend. Building backend..."
-          docker build -t backend-image:latest ./backend
-        fi
+#         # Build and deploy if necessary
+#         if [ ! -z "$BACKEND_CHANGED" ]; then
+#           echo "Changes detected in backend. Building backend..."
+#           docker build -t backend-image:latest ./backend
+#         fi
 
-        if [ ! -z "$FRONTEND_CHANGED" ]; then
-          echo "Changes detected in frontend. Building frontend..."
-          docker build -t frontend-image:latest ./frontend
-        fi
+#         if [ ! -z "$FRONTEND_CHANGED" ]; then
+#           echo "Changes detected in frontend. Building frontend..."
+#           docker build -t frontend-image:latest ./frontend
+#         fi
 
-        # Log in to Docker if required
-        echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+#         # Log in to Docker if required
+#         echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
 
-        # Deploy the updated docker-compose stack
-        echo "Deploying updated services..."
-        docker-compose down
-        docker-compose up -d --build
+#         # Deploy the updated docker-compose stack
+#         echo "Deploying updated services..."
+#         docker-compose down
+#         docker-compose up -d --build
 
-        EOF
+#         EOF

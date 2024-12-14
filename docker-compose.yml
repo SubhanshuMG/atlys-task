@@ -47,7 +47,8 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   atlys-fe:
-    build: ./frontend
+    image: "subhanshumg/atlys-fe:latest"
+    # build: ./frontend
     container_name: "atlys-fe"
     ports:
       - "80:3000"
@@ -60,7 +61,8 @@ services:
       - "traefik.http.routers.atlys-fe.middlewares=security-headers@docker"  
 
   atlys-be:
-    build: ./backend
+    image: "subhanshumg/atlys-be:latest"
+    # build: ./backend
     container_name: "atlys-be"
     ports:
       - "5000:5000"
