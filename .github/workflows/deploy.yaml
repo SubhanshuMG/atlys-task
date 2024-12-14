@@ -1,4 +1,4 @@
-name: GCP webapp
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,21 +6,59 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  scan_git_secrets:
+    name: 1. Scanning Git Secrets
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Install and Scan Git Secrets
+        run: |
+          echo "Installing Git Secrets"
+          source ./ops/ci/clone-git-secrets.sh
+          echo "Scanning Git Secrets"
+          source ./ops/ci/git-secrets.sh
 
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v2
+  build_and_push_docker:
+    name: 2. Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: scan_git_secrets
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Login to DockerHub
+        run: |
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+      - name: Build and Push Docker Image
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          APP_TAG_PREFIX: ${{ secrets.APP_TAG_PREFIX }}
+        run: |
+          bash ./ops/ci/push-docker-image-dockerhub.sh ./server
 
-    - name: Build and Push Docker Images
-      run: |
-        docker-compose build
-        docker-compose push
+  create_tag:
+    name: 3. Create Tag for Commit
+    runs-on: ubuntu-latest
+    needs: build_and_push_docker
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Create Git Tag
+        run: |
+          bash ./ops/ci/create-tag.sh
 
-    - name: Deploy to GCP
-      run: |
-        ssh your-gcp-vm 'cd /path-to-project && docker-compose pull && docker-compose up -d'
+  deploy_to_server:
+    name: 4. Deploy to Server
+    runs-on: ubuntu-latest
+    needs: create_tag
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Deploy to Server via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /home/subhanshugupta0/atlys-task
+            docker-compose pull
+            docker-compose up -d
+          EOF
