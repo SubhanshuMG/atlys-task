@@ -10,7 +10,7 @@ jobs:
     name: 1. Checking changes
     runs-on: ubuntu-latest
     outputs:
-      frontend_changed: ${{ steps.check.outputs.changed }}
+      backend_changed: ${{ steps.check.outputs.changed }}
     steps:
     # Step 1: Checkout the repository
     - name: Checkout Code
@@ -22,17 +22,16 @@ jobs:
     - name: Check for changes in backend
       id: changes
       run: |
-        # Check for changes in frontend or backend directories
-        git fetch origin
-        BACKEND_CHANGED=$(git diff --name-only HEAD~1 HEAD | grep "^backend/")
+        # Check for changes in the backend folder
+        BACKEND_CHANGED=$(git diff --name-only HEAD~1 HEAD | grep "^backend/" || true)
 
         # Print detected changes
         if [ ! -z "$BACKEND_CHANGED" ]; then
-          echo "Frontend changes detected:"
+          echo "Backend changes detected:"
           echo "$BACKEND_CHANGED"
           echo "changed=true" >> $GITHUB_OUTPUT
         else
-          echo "No changes detected in frontend."
+          echo "No changes detected in backend."
           echo "changed=false" >> $GITHUB_OUTPUT
         fi
 
