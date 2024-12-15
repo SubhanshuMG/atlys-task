@@ -98,6 +98,10 @@ Ensuring seamless CI/CD integration with GitHub Actions for a multi-service setu
 - **Backend API**: https://atlys-be.subhanshumg.com
 - **Traefik Dashboard**: https://monitor-atlys.subhanshumg.com
 
+### Docker Containers
+
+![alt text](https://storage.googleapis.com/atlys-ss/ec2-containers.png)
+
 ### Credentials
 |  Type    |  Username |  Password |
 |----------|-----------|-----------|
