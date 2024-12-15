@@ -100,7 +100,7 @@ Ensuring seamless CI/CD integration with GitHub Actions for a multi-service setu
 
 ### Docker Containers
 
-![alt text](https://storage.googleapis.com/atlys-ss/ec2-containers.png)
+![alt text](https://storage.googleapis.com/atlys-ss/e2-containers-32.png)
 
 ### Credentials
 |  Type    |  Username |  Password |
